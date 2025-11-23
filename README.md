@@ -20,7 +20,7 @@ Retrieves the last socket error code that occurred on the thread from which it i
 ```c++
 char *TryGetErrorMessage(int errorCode, char **errorMessage)
 ```
-Tries to retrieves the corresponding error message based on the provided error code. This function translates the given error code into a human-readable string, allowing for easier debugging and understanding of the specific error encountered.
+Tries to retrieve the corresponding error message based on the provided error code. This function translates the given error code into a human-readable string, allowing for easier debugging and understanding of the specific error encountered.
 
 - ShouldDeleteErrorMessage
 ```c++

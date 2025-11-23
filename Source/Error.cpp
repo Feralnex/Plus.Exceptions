@@ -14,7 +14,7 @@ extern "C"
     {
 #ifdef _WIN32
         return GetLastError();
-#else
+#elif __linux__
         return errno;
 #endif
     }
@@ -23,26 +23,31 @@ extern "C"
     {
 #ifdef _WIN32
         return WSAGetLastError();
-#else
+#elif __linux__
         return errno;
 #endif
     }
 
-    EXPORT char *GetErrorMessage(int errorCode)
+    EXPORT bool TryGetErrorMessage(int errorCode, char **errorMessage)
     {
 #ifdef _WIN32
         LPSTR buffer = nullptr;
-
-        FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+        DWORD size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                        NULL, errorCode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&buffer, 0, NULL);
+        bool messageFound = size > 0;
 
-        char* errorMessage = _strdup(buffer);
+        if (messageFound)
+        {
+            *errorMessage = _strdup(buffer);
 
-        LocalFree(buffer);
+            LocalFree(buffer);
+        }
 
-        return errorMessage;
-#else
-        return strerror(errorCode);
+        return messageFound;
+#elif __linux__
+        *errorMessage = strerror(errorCode);
+
+        return *errorMessage && strlen(*errorMessage) > 0;
 #endif
     }
 
@@ -50,7 +55,7 @@ extern "C"
     {
 #ifdef _WIN32
         return true;
-#else
+#elif __linux__
         return false;
 #endif
     }
